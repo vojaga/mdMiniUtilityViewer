@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="sk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Markdown Viewer</title>
+
+    <!-- Základné knižnice -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <!-- Prism s rozšírenými jazykmi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-shell-session.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css-extras.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-git.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-docker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-nginx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-latex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-graphql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-scss.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-log.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-django.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-brainfuck.min.js"></script>
+
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      .vue-component {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+
+      /* Štýly pre TOC */
+      .toc {
+        background: var(--code-bg);
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+      }
+
+      .toc ul {
+        list-style-type: none;
+        padding-left: 1.5rem;
+      }
+
+      .toc > ul {
+        padding-left: 0;
+      }
+
+      .toc li {
+        margin: 0.5rem 0;
+      }
+
+      .toc a {
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      .toc a:hover {
+        text-decoration: underline;
+      }
+
+      /* zakladne nastavenia stylov css konstanty */
+      :root {
+        --primary: #10b981;
+        --bg: #ffffff;
+        --text: #1f2937;
+        --border: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --table-border: #d1d5db;
+        --table-bg: #ffffff;
+        --table-stripe: #f9fafb;
+        --mermaid-bg: #ffffff;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --primary: #10b981;
+          --bg: #1f2937;
+          --text: #f9fafb;
+          --border: #374151;
+          --code-bg: #111827;
+          --table-border: #374151;
+          --table-bg: #1f2937;
+          --table-stripe: #111827;
+          --mermaid-bg: #1f2937;
+        }
+
+        /* Úpravy pre Prism v dark mode */
+        pre[class*="language-"],
+        code[class*="language-"] {
+          background: var(--code-bg) !important;
+          text-shadow: none !important;
+          color: #e5e7eb !important;
+        }
+
+        .token.comment {
+          color: #6b7280 !important;
+        }
+        .token.string {
+          color: #a5d6ff !important;
+        }
+        .token.number {
+          color: #ff9580 !important;
+        }
+        .token.keyword {
+          color: #ff7b72 !important;
+        }
+        .token.function {
+          color: #d2a8ff !important;
+        }
+        .token.operator {
+          background: transparent !important;
+          color: inherit !important;
+        }
+      }
+
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: -apple-system, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      #content {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      /* Vylepšené štýly pre tabuľky */
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1em 0;
+        background: var(--table-bg);
+        border: 1px solid var(--table-border);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        border: 1px solid var(--table-border);
+        text-align: left;
+      }
+
+      th {
+        background: var(--table-bg);
+        font-weight: 600;
+      }
+
+      tr:nth-child(even) {
+        background: var(--table-stripe);
+      }
+
+      /* Štýly pre Mermaid */
+      .mermaid {
+        background: var(--mermaid-bg);
+        padding: 16px;
+        border-radius: 4px;
+        margin: 16px 0;
+        text-align: center;
+      }
+
+      /* Vylepšené štýly pre kódové bloky */
+      pre[class*="language-"] {
+        margin: 1.5em 0;
+        padding: 1em;
+        border-radius: 4px;
+        overflow: auto;
+        background: var(--code-bg) !important;
+      }
+
+      pre[class*="language-"] > code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          monospace;
+        font-size: 0.9em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="controls">
+      <input
+        type="file"
+        id="fileInput"
+        accept=".md,.markdown"
+        style="display: none"
+      />
+      <button
+        class="btn"
+        onclick="document.getElementById('fileInput').click()"
+      >
+        Otvoriť Markdown
+      </button>
+    </div>
+
+    <div id="content"></div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Mermaid inicializácia s kontrolou témy
+        const isDarkMode = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: isDarkMode ? "dark" : "default",
+          securityLevel: "loose",
+          fontFamily: "-apple-system, system-ui, sans-serif",
+        });
+
+        // Marked konfigurácia
+        marked.setOptions({
+          gfm: true, // GitHub Flavored Markdown
+          breaks: true,
+          tables: true, // Povolenie tabuliek
+          highlight: function (code, lang) {
+            if (lang === "mermaid") {
+              return `<div class="mermaid">${code}</div>`;
+            }
+
+            if (lang && Prism.languages[lang]) {
+              try {
+                return Prism.highlight(code, Prism.languages[lang], lang);
+              } catch (e) {
+                console.warn("Chyba pri zvýrazňovaní syntaxe:", e);
+              }
+            }
+            return code;
+          },
+          langPrefix: "language-",
+        });
+
+        // Test markdown s tabuľkou a diagramom
+        const testContent = `
+### Ukážka podporovaných funkcií
+
+\`\`\`yaml
+# Konfigurácia
+app:
+  name: Test
+  version: 1.0.0
+\`\`\`
+
+\`\`\`bash
+# Inštalácia závislostí
+npm install marked mermaid
+\`\`\`
+
+| Názov | Typ | Popis |
+|-------|-----|-------|
+| Test 1 | A   | Popis 1 |
+| Test 2 | B   | Popis 2 |
+
+\`\`\`mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+\`\`\`
+`;
+
+        document.getElementById("content").innerHTML =
+          marked.parse(testContent);
+        mermaid.init();
+      });
+
+      // Načítanie súboru
+      document
+        .getElementById("fileInput")
+        .addEventListener("change", async function (e) {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = async function (e) {
+            const text = e.target.result;
+            document.getElementById("content").innerHTML = marked.parse(text);
+
+            try {
+              await mermaid.init(
+                undefined,
+                document.querySelectorAll(".mermaid")
+              );
+              Prism.highlightAll();
+            } catch (error) {
+              console.warn("Chyba pri renderovaní:", error);
+            }
+          };
+          reader.readAsText(file);
+        });
+
+      // Drag & drop zostáva rovnaký
+      document.addEventListener("dragover", (e) => e.preventDefault());
+      document.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].name.match(/\.(md|markdown)$/i)) {
+          document.getElementById("fileInput").files = files;
+          const event = new Event("change");
+          document.getElementById("fileInput").dispatchEvent(event);
+        }
+      });
+    </script>
+  </body>
+</html>
